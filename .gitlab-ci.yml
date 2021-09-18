@@ -1,4 +1,4 @@
-# op
+# Wictor Girardi 17/0047326
 
 image: docker:stable
 
@@ -6,27 +6,38 @@ services:
   - docker:dind
 
 variables:
-  DOCKER_USER:  $DOCKER_USER
-  DOCKER_PASSWORD:  $DOCKER_PASSWORD
+  DOCKER_USER: $DOCKER_USER
+  DOCKER_PASSWORD: $DOCKER_PASSWORD
 
 stages: # List of stages for jobs, and their order of execution
-  - build
   - test
-  - deploy
-  
+  - build
+
 build-backend: # This job runs in the build stage to build the backend, which runs first.
   stage: build
+  before_script:
+    - echo "Loggin in DockerHub"
+    - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
   script:
     - echo "Compiling the backend..."
     - docker build -f ./backend/Dockerfile -t $DOCKER_USER/entrega02_backend:build_back ./backend
     - echo "Success!!"
+    - echo "Deploying application..."
+    - docker push $DOCKER_USER/entrega02_backend
+    - echo "Application successfully deployed."
 
 build-frontend: # This job runs in the build stage to build the frontend, which runs first.
   stage: build
+  before_script:
+    - echo "Loggin in DockerHub"
+    - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
   script:
     - echo "Compiling the frontend..."
     - docker build -f ./frontend/Dockerfile -t $DOCKER_USER/entrega02_frontend:build_front ./frontend
     - echo "Compile complete."
+    - echo "Deploying application..."
+    - docker push $DOCKER_USER/entrega02_frontend
+    - echo "Application successfully deployed."
 
 test-job-frontend: # This job runs in the test stage.
   image: docker/compose:latest
@@ -45,23 +56,3 @@ test-job-backend: # This job runs in the test stage.
     - docker-compose run --entrypoint "npm run unittest" backend
   after_script:
     - echo "Success!!"
-
-deploy-job-frontend: # This job runs in the deploy stage.
-  stage: deploy # It only runs when *both* jobs in the test stage complete successfully.
-  before_script:
-    - echo "Loggin in DockerHub"
-    - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-  script:
-    - docker push $DOCKER_USER/entrega02_frontend
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
-
-deploy-job-backend: # This job runs in the deploy stage.
-  stage: deploy # It only runs when *both* jobs in the test stage complete successfully.
-  before_script:
-    - echo "Loggin in DockerHub"
-    - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
-  script:
-    - docker push $DOCKER_USER/entrega02_backend
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
