@@ -18,12 +18,14 @@ build-backend: # This job runs in the build stage to build the backend, which ru
   stage: build
   script:
     - echo "Compiling the backend..."
+    - docker build -f ./backend/Dockerfile -t $DOCKER_USER/entrega02_backend:build_back ./backend
     - echo "Success!!"
 
 build-frontend: # This job runs in the build stage to build the frontend, which runs first.
   stage: build
   script:
-    - echo "Compiling the code..."
+    - echo "Compiling the frontend..."
+    - docker build -f ./frontend/Dockerfile -t $DOCKER_USER/entrega02_frontend:build_front ./frontend
     - echo "Compile complete."
 
 test-job-frontend: # This job runs in the test stage.
@@ -44,8 +46,24 @@ test-job-backend: # This job runs in the test stage.
   after_script:
     - echo "Success!!"
 
-deploy-job: # This job runs in the deploy stage.
+deploy-job-frontend: # This job runs in the deploy stage.
   stage: deploy # It only runs when *both* jobs in the test stage complete successfully.
+  before_script:
+    - echo "Loggin in DockerHub"
+    - docker login -u $DOCKER_ID -p $DOCKER_TOKEN
   script:
+    - docker build -t $DOCKER_ID/$DOCKER_FRONTEND_REPO .
+    - docker push $DOCKER_ID/$DOCKER_FRONTEND_REPO
+    - echo "Deploying application..."
+    - echo "Application successfully deployed."
+
+deploy-job-backend: # This job runs in the deploy stage.
+  stage: deploy # It only runs when *both* jobs in the test stage complete successfully.
+  before_script:
+    - echo "Loggin in DockerHub"
+    - docker login -u $DOCKER_ID -p $DOCKER_TOKEN
+  script:
+    - docker build -t $DOCKER_ID/$DOCKER_BACKEND_REPO .
+    - docker push $DOCKER_ID/$DOCKER_BACKEND_REPO
     - echo "Deploying application..."
     - echo "Application successfully deployed."
