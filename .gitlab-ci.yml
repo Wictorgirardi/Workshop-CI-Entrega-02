@@ -50,10 +50,9 @@ deploy-job-frontend: # This job runs in the deploy stage.
   stage: deploy # It only runs when *both* jobs in the test stage complete successfully.
   before_script:
     - echo "Loggin in DockerHub"
-    - docker login -u $DOCKER_ID -p $DOCKER_TOKEN
+    - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
   script:
-    - docker build -t $DOCKER_ID/$DOCKER_FRONTEND_REPO .
-    - docker push $DOCKER_ID/$DOCKER_FRONTEND_REPO
+    - docker push $DOCKER_USER/entrega02_frontend
     - echo "Deploying application..."
     - echo "Application successfully deployed."
 
@@ -61,9 +60,8 @@ deploy-job-backend: # This job runs in the deploy stage.
   stage: deploy # It only runs when *both* jobs in the test stage complete successfully.
   before_script:
     - echo "Loggin in DockerHub"
-    - docker login -u $DOCKER_ID -p $DOCKER_TOKEN
+    - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
   script:
-    - docker build -t $DOCKER_ID/$DOCKER_BACKEND_REPO .
-    - docker push $DOCKER_ID/$DOCKER_BACKEND_REPO
+    - docker push $DOCKER_USER/entrega02_backend
     - echo "Deploying application..."
     - echo "Application successfully deployed."
