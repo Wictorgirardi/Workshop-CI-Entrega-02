@@ -11,10 +11,10 @@ variables:
 
 stages: # List of stages for jobs, and their order of execution
   - test
-  - build
+  - build and deploy
 
 build-backend: # This job runs in the build stage to build the backend, which runs first.
-  stage: build
+  stage: build and deploy
   before_script:
     - echo "Loggin in DockerHub"
     - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
@@ -27,7 +27,7 @@ build-backend: # This job runs in the build stage to build the backend, which ru
     - echo "Application successfully deployed."
 
 build-frontend: # This job runs in the build stage to build the frontend, which runs first.
-  stage: build
+  stage: build and deploy
   before_script:
     - echo "Loggin in DockerHub"
     - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
